@@ -41,62 +41,35 @@ namespace MankalaProject
                 return -player; //-player indicates a move was invalid, and the same player should try a valid move
             }
 
-            int pickedPebbles;
-            int activePit = startingPit;
-            Pit[] activeList; Pit[] startingList; Pit[] opponentList;
+            if (player == 2) { startingPit = board.RegularPitAmount + 1 + startingPit; }
 
-            if (player == 1)
-            {
-                activeList = board.P1Pits;
-                startingList = board.P1Pits;
-                opponentList = board.P2Pits;
-            }
-            else
-            {
-                activeList = board.P2Pits;
-                startingList = board.P2Pits;
-                opponentList = board.P1Pits;
-            }
-            if (activeList[activePit].PebbleAmount == 0)
+            int pickedPebbles;
+            Pit currentPit = board.GetFirstPit(startingPit);
+
+            if (currentPit.PebbleAmount == 0)
             {
                 return -player;
             }
-            pickedPebbles = activeList[startingPit].RemovePebbles();
+            pickedPebbles = currentPit.RemovePebbles();
 
             while (pickedPebbles > 0)
             {
-                activePit++;
-                //If we have run over this entire pitlist, go to the other side. take into account we should skip opponent homepit.
-                {
-                    if ((activePit >= activeList.Length && activeList == startingList) || (activePit >= activeList.Length -1 && activeList == opponentList))
-                    {
-                        if (activeList == board.P1Pits)
-                        {
-                            activeList = board.P2Pits;
-                        }
-                        else
-                        {
-                            activeList = board.P1Pits;
-                        }
-                        activePit = 0;
-                    }
-                }
-                activeList[activePit].AddPebble(1);
-                pickedPebbles--;
+                currentPit = board.GetNextPit();
+                pickedPebbles = currentPit.AddPebble(player, pickedPebbles);
+                
             }
 
-            if (startingList == activeList) //Finish on starting player side
+            if (currentPit.Owner == player) //Finish on starting player side
             {
-                if (activePit == board.RegularPitAmount) { return player; }                     //Finish in homepit                     Another Turn
-                if (activeList[activePit].PebbleAmount > 0) 
-                {
-                    return DoTurn(player, activePit); }   //Finish in non-empty,non-Homepit       Another Turn, starting from here
-                else if (opponentList[(board.RegularPitAmount) - 1 - activePit].PebbleAmount == 0)
-                { return (player % 2) + 1; }                                                        //Finish in empty pit, opposite an empty pit    Turn ends
+                if (currentPit is HomePit) { return player; }                                                       //Finish in homepit                             Another Turn
+                if (currentPit.PebbleAmount > 0){ return DoTurn(player, (board.PitIndex%7)); }                      //Finish in non-empty,non-Homepit               Another Turn, starting from here
+                else if (board.GetOppositePit().PebbleAmount == 0)                                                  //Finish in empty pit, opposite an empty pit    Turn ends
+                { return (player % 2) + 1; }                                                        
                 else
-                {                                                                                   //Finsih in empty pit, opposite an non-empty pit: take opposite pits pebbles, and the last strewn pebble, and adds them to homepit. Turn ends
-                    activeList[activePit].AddPebble(-1);
-                    startingList[board.RegularPitAmount].AddPebble(opponentList[(board.RegularPitAmount) - 1 - activePit].RemovePebbles() + 1);
+                {                                                                                                   //Finsih in empty pit, opposite an non-empty pit: take opposite pits pebbles, and the last strewn pebble, and adds them to homepit. Turn ends
+                    int homePitIndex = (board.RegularPitAmount * player) - 1 + player; //This should always get the homePit for the activePlayer. Maybe make this a function in PlayingBoard?
+                    Pit homePit = board.GetFirstPit(homePitIndex);
+                    homePit.AddPebble(0, board.GetOppositePit().RemovePebbles());
                     return (player % 2) + 1;
                 }
             }
@@ -111,20 +84,20 @@ namespace MankalaProject
 
         public override int DecideWin(int player)
         {
-            Pit[] activeList;
-            if (player == 1) { activeList = board.P1Pits; }
-            else { activeList = board.P2Pits; }
+            Pit currentPit;
+            currentPit = board.GetFirstPit(board.RegularPitAmount * (player-1) + (player - 1));
 
-            for (int i = 0; i < activeList.Length - 1; i++) //Length -1 because homepit isnt a valid move
+            for (int i = 0; i < board.RegularPitAmount; i++)
             {
-                if (activeList[i].PebbleAmount > 0)
+                if (currentPit.PebbleAmount > 0)
                 {
-                    return -1;  //If the active player still has a non-empty pit, the game isnt over
+                    return -1;
                 }
+                currentPit = board.GetNextPit();
             }
 
-            int player1Score = board.P1Pits.Last().PebbleAmount;
-            int player2Score = board.P2Pits.Last().PebbleAmount;
+            int player1Score = board.GetFirstPit(board.RegularPitAmount).PebbleAmount;
+            int player2Score = board.GetFirstPit(board.RegularPitAmount * 2 +1).PebbleAmount;
 
             if (player1Score > player2Score) { return 1; } //Player1Wins
             if (player1Score < player2Score) { return 2; } //Player2Wins

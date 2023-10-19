@@ -23,7 +23,7 @@ namespace MankalaProject.Tests
             player = mode.DoTurn(player, startingPit);
 
 
-            Assert.AreEqual(1,player);
+            Assert.AreEqual(1, player);
         }
         [TestMethod()]
         public void DoTurnTestOpponent()
@@ -51,7 +51,7 @@ namespace MankalaProject.Tests
             finished = mode.DecideWin(1);
 
             //Assert
-            Assert.AreEqual(finished,0);
+            Assert.AreEqual(finished, 0);
         }
 
         [TestMethod()]
@@ -60,14 +60,46 @@ namespace MankalaProject.Tests
             //Arange
             int finished;
             GameMode mode = new Mankala(6, 0);
-            mode.board.P1Pits[6].AddPebble(1);
+            mode.board.PitList[6].AddPebble(1, 1);
 
             //Act
 
             finished = mode.DecideWin(1);
 
             //Assert
-            Assert.AreEqual(finished, 1);
+            Assert.AreEqual(1, finished);
+
+
         }
+        [TestMethod()]
+        public void DecideWinTestP2Win()
+        {
+            //Arange
+            int finished;
+            GameMode mode = new Mankala(6, 0);
+            mode.board.PitList[13].AddPebble(2, 1);
+
+            //Act
+
+            finished = mode.DecideWin(2);
+
+            //Assert
+            Assert.AreEqual(2, finished);
+        }
+        [TestMethod()]
+        public void DecideWinTestNotFinished()
+        {
+            //Arange
+            int finished;
+            GameMode mode = new Mankala(6, 4);
+
+            //Act
+
+            finished = mode.DecideWin(2);
+
+            //Assert
+            Assert.AreEqual(-1, finished);
+        }
+
     }
 }

@@ -8,11 +8,10 @@ namespace MankalaProject
 {
     public class PlayingBoard
     {
-        public Pit[] P1Pits;
-        public Pit[] P2Pits;
         public Pit[] PitList;
         public int RegularPitAmount;
         public bool HasHomePits;
+        public int PitIndex;
 
         public PlayingBoard(int pits, bool homePits, int startingPebbles)
         {
@@ -22,48 +21,64 @@ namespace MankalaProject
             {
                 pits++;
             }
-            P1Pits = new Pit[pits];
-            P2Pits = new Pit[pits];
             PitList = new Pit[pits*2];
 
             for (int i = 0; i < pits; i++)
             {
-                P1Pits[i] = new NormalPit(startingPebbles);
-                P2Pits[i+pits] = new NormalPit(startingPebbles);
+                PitList[i] = new NormalPit(startingPebbles,1);
+                PitList[i+pits] = new NormalPit(startingPebbles,2);
             }
 
             if (homePits)
             {
-                P1Pits[pits - 1] = new HomePit();
-                P2Pits[pits - 1] = new HomePit();
+                PitList[pits - 1] = new HomePit(1);
+                PitList[pits *2 - 1] = new HomePit(2);
             }
-        
         }
 
+        public Pit GetFirstPit(int pitIndex) 
+        {
+            PitIndex = pitIndex;
+            return PitList[PitIndex]; 
+        }
+        public Pit GetNextPit()
+        {
+            PitIndex++;
+            PitIndex %= PitList.Length;
+            return PitList[PitIndex];
+        }
+
+        public Pit GetOppositePit()
+        {
+            return PitList[PitList.Length - PitIndex -2];
+        }
+        
         public void printBoard()
         {
             string firstline = "";
             string secondline = "";
             string thirdline = "";
+            int homePitOffset = 0;
 
             if (this.HasHomePits)
             {
+                homePitOffset = 2;
                 firstline += "[ ]";
-                secondline += "[" + this.P2Pits.Last().PebbleAmount + "]";
+                secondline += "[" + this.PitList.Last().PebbleAmount + "]";
                 thirdline += "[ ]";
             }
 
-            for (int i = 0; this.RegularPitAmount > i; i++)
+            for (int i = 0; i < this.RegularPitAmount; i++)
             {
-                firstline += "[" + this.P2Pits[this.RegularPitAmount - i - 1].PebbleAmount + "]";
+                firstline += "[" + this.PitList[this.RegularPitAmount * 2 -i ].PebbleAmount + "]";
                 secondline += "   ";
-                thirdline += "[" + this.P1Pits[i].PebbleAmount + "]";
+                thirdline += "[" + this.PitList[i].PebbleAmount + "]";
             }
 
             if (this.HasHomePits)
             {
                 firstline += "[ ]";
-                secondline += "[" + this.P1Pits.Last().PebbleAmount + "]";
+                secondline += "[" + this.PitList[RegularPitAmount].PebbleAmount + "]";
                 thirdline += "[ ]";
             }
 
@@ -71,18 +86,25 @@ namespace MankalaProject
             Console.WriteLine(secondline);
             Console.WriteLine(thirdline);
         }
+        
     }
 
     abstract public class Pit
     {
         public int PebbleAmount = 0;
+        public int Owner;
 
         abstract public int RemovePebbles();
-        abstract public void AddPebble(int amount);
+        abstract public int AddPebble(int player, int amount);
     }
 
     class HomePit : Pit
     {
+        public HomePit(int owner)
+        {
+            Owner = owner;
+        }
+
         public override int RemovePebbles()
         {
             //This should never be called, i think?
@@ -90,17 +112,32 @@ namespace MankalaProject
             this.PebbleAmount = 0;
             return previousPebbles;
         }
-        public override void AddPebble(int amount)
+        public override int AddPebble(int player, int amount)
         {
-            this.PebbleAmount += amount;
+            if(player == 0)
+            {   //Use this if a large amount of pebbles has to be added, due to game-specific rules
+                this.PebbleAmount += amount;
+                return 0;
+            }
+            else if(Owner  == player)
+            {
+                this.PebbleAmount++;
+                return amount-1;
+            }
+            else
+            {
+                return amount;
+            }
+            
         }
 
     }
 
     class NormalPit : Pit
     {
-        public NormalPit(int initalPebbles)
+        public NormalPit(int initalPebbles, int player)
         {
+            Owner = player;
             PebbleAmount = initalPebbles;
         }
         public override int RemovePebbles()
@@ -110,9 +147,10 @@ namespace MankalaProject
             return previousPebbles;
         }
 
-        public override void AddPebble(int amount)
+        public override int AddPebble(int player, int amount)
         {
-            this.PebbleAmount+=amount;
+            this.PebbleAmount++;
+            return amount-1;
         }
 
     }
