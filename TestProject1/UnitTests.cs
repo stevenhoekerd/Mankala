@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace MankalaProject.Tests
 {
     [TestClass()]
-    public class GameModeTests
+    public class MankalaTests
     {
 
         [TestMethod()]
@@ -100,6 +100,83 @@ namespace MankalaProject.Tests
             //Assert
             Assert.AreEqual(-1, finished);
         }
-
     }
+
+    [TestClass()]
+    public class WariTests
+    {
+        [TestMethod()]
+        public void DecideWinTestWinP1() 
+        {
+            //Arrange
+            int finished;
+            GameMode mode = new Wari(6, 0);
+            mode.board.P1Collection++;
+
+            //Act
+            finished = mode.DecideWin(1);
+
+            //Assert
+            Assert.AreEqual(1,finished);
+        }
+        [TestMethod()]
+        public void DecideWinTestWinP2()
+        {
+            //Arrange
+            int finished;
+            GameMode mode = new Wari(6, 0);
+            mode.board.P2Collection++;
+
+            //Act
+            finished = mode.DecideWin(1);
+
+            //Assert
+            Assert.AreEqual(2, finished);
+        }
+        [TestMethod()]
+        public void DecideWinTestNotFinished()
+        {
+            //Arange
+            int finished;
+            GameMode mode = new Wari();
+
+            //Act
+
+            finished = mode.DecideWin(2);
+
+            //Assert
+            Assert.AreEqual(-1, finished);
+        }
+        [TestMethod()]
+        public void DecideWinTestTie()
+        {
+            //Arrange
+            int finished;
+            GameMode mode = new Wari(6, 0);
+
+            //Act
+            finished = mode.DecideWin(1);
+
+            //Assert
+            Assert.AreEqual(0, finished);
+        }
+        [TestMethod()]
+        public void TakePebbleTest()
+        {
+
+            //Arrange
+            int score;
+            GameMode mode = new Wari(1, 1);
+
+            //Act
+            mode.DoTurn(1, 0);
+            score = mode.board.P1Collection;
+
+            //Assert
+            Assert.AreEqual(2, score);
+
+        }
+    }
+
+
 }

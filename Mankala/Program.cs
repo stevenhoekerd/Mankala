@@ -23,6 +23,16 @@ namespace MankalaProject
                         gameMode= new Mankala(settings[1], settings[2]);
                     }
                     break;
+                case 1:
+                    if (settings[1] == -1)
+                    {
+                        gameMode = new Wari();
+                    }
+                    else
+                    {
+                        gameMode = new Wari(settings[1], settings[2]);
+                    }
+                    break;
                 default: gameMode = new Mankala();
                     break;
             }
@@ -40,7 +50,7 @@ namespace MankalaProject
                     continue;
                 }
                 
-                //Obtain startingpit through UI
+                
                 player = gameMode.DoTurn(player,startingPit);
 
                 if(player < 0)

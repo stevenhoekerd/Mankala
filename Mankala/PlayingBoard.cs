@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,12 +11,36 @@ namespace MankalaProject
     {
         public static PlayingBoard CreateMankalaBoard(int pitAmount, int startingPebbles)
         {
-            return new MankalaBoard(pitAmount, startingPebbles);
+            MankalaBoard board = new MankalaBoard();
+            board.RegularPitAmount = pitAmount;
+            pitAmount++;
+            board.PitList = new Pit[pitAmount * 2];
+
+            for (int i = 0; i < pitAmount; i++)
+            {
+                board.PitList[i] = new NormalPit(startingPebbles, 1);
+                board.PitList[i + pitAmount] = new NormalPit(startingPebbles, 2);
+            }
+
+            board.PitList[pitAmount - 1] = new HomePit(1);
+            board.PitList[pitAmount * 2 - 1] = new HomePit(2);
+
+            return board;
         }
 
         public static PlayingBoard CreateWariBoard(int pitAmount, int startingPebbles)
         {
-            return new WariBoard(pitAmount, startingPebbles);
+            WariBoard board = new WariBoard();
+            board.RegularPitAmount = pitAmount;
+            board.PitList = new Pit[pitAmount * 2];
+
+            for (int i = 0; i < pitAmount; i++)
+            {
+                board.PitList[i] = new NormalPit(startingPebbles, 1);
+                board.PitList[i + pitAmount] = new NormalPit(startingPebbles, 2);
+            }
+
+            return board;
         }
     }
     public class PlayingBoard
@@ -24,6 +49,8 @@ namespace MankalaProject
         public Pit[] PitList;
         public int RegularPitAmount;
         public int PitIndex;
+        public int P1Collection = 0;
+        public int P2Collection = 0;
 
         public Pit GetFirstPit(int pitIndex) 
         {
@@ -36,49 +63,34 @@ namespace MankalaProject
             PitIndex %= PitList.Length;
             return PitList[PitIndex];
         }
-
-        public Pit GetOppositePit()
+        //Default case is for a board without homePits, override for boards with.
+        public virtual Pit GetOppositePit()
         {
-            return PitList[PitList.Length - PitIndex -2];
+            return PitList[PitList.Length - 1 - PitIndex];
         }
         
     }
 
     public class MankalaBoard : PlayingBoard
     {
-        public MankalaBoard(int pits, int startingPebbles)
+        public MankalaBoard()
         {
             HasHomePits = true;
-            RegularPitAmount = pits;
-            //add another pit, for the homepit
-            pits++;
-            PitList = new Pit[pits * 2];
-
-            for (int i = 0; i < pits; i++)
-            {
-                PitList[i] = new NormalPit(startingPebbles, 1);
-                PitList[i + pits] = new NormalPit(startingPebbles, 2);
-            }
-
-            PitList[pits - 1] = new HomePit(1);
-            PitList[pits * 2 - 1] = new HomePit(2);
         }
+        public override Pit GetOppositePit()
+        {
+            return PitList[PitList.Length - 2 - PitIndex];
+        }
+
     }
 
     public class WariBoard : PlayingBoard
     {
-        int P1Collection = 0;
-        int P2Collection = 0;
-        public WariBoard(int pits, int startingPebbles)
+        
+        public WariBoard()
         {
             HasHomePits = false;
-            RegularPitAmount= pits;
-            PitList = new Pit[pits*2];
-            for (int i = 0; i < pits; i++)
-            {
-                PitList[i] = new NormalPit(startingPebbles, 1);
-                PitList[i + pits] = new NormalPit(startingPebbles, 2);
-            }
+            
         }
     }
 

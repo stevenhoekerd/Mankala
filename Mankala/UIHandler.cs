@@ -27,7 +27,7 @@ namespace Mankala
 
             if (board.HasHomePits)
             {
-                homePitOffset = 2;
+                homePitOffset = 1;
                 firstline += "[ ]";
                 secondline += "[" + board.PitList.Last().PebbleAmount + "]";
                 thirdline += "[ ]";
@@ -35,21 +35,30 @@ namespace Mankala
 
             for (int i = 0; i < board.RegularPitAmount; i++)
             {
-                firstline += "[" + board.PitList[board.RegularPitAmount * 2 - i].PebbleAmount + "]";
+                firstline += "[" + board.PitList[board.PitList.Length - 1 - i - homePitOffset].PebbleAmount + "]";
                 secondline += "   ";
                 thirdline += "[" + board.PitList[i].PebbleAmount + "]";
             }
-
+            Console.WriteLine("--------------------------------");
             if (board.HasHomePits)
             {
                 firstline += "[ ]";
                 secondline += "[" + board.PitList[board.RegularPitAmount].PebbleAmount + "]";
                 thirdline += "[ ]";
             }
-            Console.WriteLine("--------------------------------");
+            else
+            {
+                Console.WriteLine("Player 2 Score: " + board.P2Collection );
+            }
+            
             Console.WriteLine(firstline);
             Console.WriteLine(secondline);
             Console.WriteLine(thirdline);
+
+            if (!board.HasHomePits)
+            {
+                Console.WriteLine("Player 1 Score: " + board.P1Collection);
+            }
         }
 
         public override int GetMove(int player)
@@ -85,6 +94,13 @@ namespace Mankala
                 Console.WriteLine(victory);
             }
         }
+        /// <summary>
+        /// Asks the player for what game they want to play, and with what settings
+        /// Returns a list which contains, in order, the gamemode, the amount of pits per player, the number of pebbles in each pit.
+        /// -1 for the latter 2 settings is returned if the player wishes to use default settings
+        /// </summary>
+        /// <param name="gameModes"></param>
+        /// <returns></returns>
         public override int[] GetSettings(string[] gameModes)
         {
             int[] settings = new int[3];

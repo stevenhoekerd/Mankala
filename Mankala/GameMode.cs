@@ -108,12 +108,62 @@ namespace MankalaProject
 
         public override int DoTurn(int player, int startingPit)
         {
-            throw new NotImplementedException();
+            if (startingPit >= board.RegularPitAmount)
+            {
+                return -player; //-player indicates a move was invalid, and the same player should try a valid move
+            }
+
+            if (player == 2) { startingPit = board.RegularPitAmount + startingPit; }
+
+            int pickedPebbles;
+            Pit currentPit = board.GetFirstPit(startingPit);
+
+            if (currentPit.PebbleAmount == 0)
+            {
+                return -player;
+            }
+            pickedPebbles = currentPit.RemovePebbles();
+
+            while(pickedPebbles > 0)
+            {
+                currentPit = board.GetNextPit();
+                pickedPebbles = currentPit.AddPebble(player,pickedPebbles);
+            }
+
+            if(currentPit.Owner != player && (currentPit.PebbleAmount == 2 || currentPit.PebbleAmount ==3))
+            {//If the turn ends in an opponents pit, with 2 or 3 pebbles
+                pickedPebbles = currentPit.RemovePebbles();
+                if(player == 1)
+                {
+                    board.P1Collection += pickedPebbles;
+                }
+                else
+                {
+                    board.P2Collection += pickedPebbles;
+                }
+            }
+
+            return (player % 2) + 1;
+
         }
 
         public override int DecideWin(int player)
         {
-            throw new NotImplementedException();
+            Pit currentPit;
+            currentPit = board.GetFirstPit(board.RegularPitAmount * (player - 1));
+
+            for (int i = 0; i < board.RegularPitAmount; i++)
+            {
+                if (currentPit.PebbleAmount > 0)
+                {
+                    return -1;
+                }
+                currentPit = board.GetNextPit();
+            }
+
+            if (board.P1Collection > board.P2Collection) { return 1; } //Player1Wins
+            if (board.P1Collection < board.P2Collection) { return 2; } //Player2Wins
+            return 0; //Tie
         }
     }
 }
