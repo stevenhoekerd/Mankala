@@ -10,7 +10,6 @@ namespace MankalaProject
     {
         public PlayingBoard board;
 
-        abstract public void CreatePlayingBoard(int pitAmount, int startingPebbles);
         abstract public int DoTurn(int player, int startingPit);
         abstract public int DecideWin(int player);
 
@@ -23,14 +22,8 @@ namespace MankalaProject
 
         public Mankala(int pitAmount, int startingPebbles)
         {
-            CreatePlayingBoard(pitAmount, startingPebbles);
+            this.board = BoardFactory.CreateMankalaBoard(pitAmount, startingPebbles);
 
-        }
-
-
-        public override void CreatePlayingBoard(int pitAmount, int startingPebbles)
-        {
-            this.board = new PlayingBoard(pitAmount, true, startingPebbles);
         }
 
         public override int DoTurn(int player, int startingPit)
@@ -102,6 +95,25 @@ namespace MankalaProject
             if (player1Score > player2Score) { return 1; } //Player1Wins
             if (player1Score < player2Score) { return 2; } //Player2Wins
             return 0; //Tie
+        }
+    }
+
+    public class Wari : GameMode
+    {
+        public Wari()  : this(6,4) {}
+        public Wari(int pitAmount, int startingPebbles)
+        {
+            this.board = BoardFactory.CreateWariBoard(pitAmount, startingPebbles);
+        }
+
+        public override int DoTurn(int player, int startingPit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int DecideWin(int player)
+        {
+            throw new NotImplementedException();
         }
     }
 }
