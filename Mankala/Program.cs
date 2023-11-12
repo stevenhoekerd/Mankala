@@ -12,6 +12,7 @@ namespace MankalaProject
             int[] settings = printer.GetSettings(gameModes);
 
             GameMode gameMode;
+            //A -1 on the settings[1] slot indicates the player has chosen to play with default settings, thus we create a default game.
             switch (settings[0])
             {
                 case 0:
