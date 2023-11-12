@@ -4,10 +4,10 @@ namespace MankalaProject
 {
     internal class Program
     {
-        
+
         static void Main(string[] args)
         {
-            string[] gameModes = new string[] { "Mankala" ,"Wari"};
+            string[] gameModes = new string[] { "Mankala", "Wari", "Mankari" };
             UIHandler printer = new AsciUI();
             int[] settings = printer.GetSettings(gameModes);
 
@@ -15,12 +15,13 @@ namespace MankalaProject
             switch (settings[0])
             {
                 case 0:
-                    if (settings[1] == -1) {
+                    if (settings[1] == -1)
+                    {
                         gameMode = new Mankala();
                     }
                     else
                     {
-                        gameMode= new Mankala(settings[1], settings[2]);
+                        gameMode = new Mankala(settings[1], settings[2]);
                     }
                     break;
                 case 1:
@@ -33,7 +34,18 @@ namespace MankalaProject
                         gameMode = new Wari(settings[1], settings[2]);
                     }
                     break;
-                default: gameMode = new Mankala();
+                case 2:
+                    if (settings[1] == -1)
+                    {
+                        gameMode = new Mankari();
+                    }
+                    else
+                    {
+                        gameMode = new Mankari(settings[1], settings[2]);
+                    }
+                    break;
+                default:
+                    gameMode = new Mankala();
                     break;
             }
 
@@ -49,11 +61,11 @@ namespace MankalaProject
                     printer.InvalidMove(player);
                     continue;
                 }
-                
-                
-                player = gameMode.DoTurn(player,startingPit);
 
-                if(player < 0)
+
+                player = gameMode.DoTurn(player, startingPit);
+
+                if (player < 0)
                 {
                     player = -player;
                     //Go back to the start of the turn, if an invalid move was chosen
@@ -68,17 +80,17 @@ namespace MankalaProject
 
         }
 
-       
 
 
 
-       
+
+
     }
 
-    
 
 
 
 
-    
+
+
 }

@@ -1,164 +1,153 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace MankalaProject;
 
-namespace MankalaProject
+public static class BoardFactory
 {
-    public static class BoardFactory
+    public static PlayingBoard CreateMankalaBoard(int pitAmount, int startingPebbles)
     {
-        public static PlayingBoard CreateMankalaBoard(int pitAmount, int startingPebbles)
+        var board = new MankalaBoard();
+        board.RegularPitAmount = pitAmount;
+        pitAmount++;
+        board.PitList = new Pit[pitAmount * 2];
+
+        for (var i = 0; i < pitAmount; i++)
         {
-            MankalaBoard board = new MankalaBoard();
-            board.RegularPitAmount = pitAmount;
-            pitAmount++;
-            board.PitList = new Pit[pitAmount * 2];
-
-            for (int i = 0; i < pitAmount; i++)
-            {
-                board.PitList[i] = new NormalPit(startingPebbles, 1);
-                board.PitList[i + pitAmount] = new NormalPit(startingPebbles, 2);
-            }
-
-            board.PitList[pitAmount - 1] = new HomePit(1);
-            board.PitList[pitAmount * 2 - 1] = new HomePit(2);
-
-            return board;
+            board.PitList[i] = new NormalPit(startingPebbles, 1);
+            board.PitList[i + pitAmount] = new NormalPit(startingPebbles, 2);
         }
 
-        public static PlayingBoard CreateWariBoard(int pitAmount, int startingPebbles)
-        {
-            WariBoard board = new WariBoard();
-            board.RegularPitAmount = pitAmount;
-            board.PitList = new Pit[pitAmount * 2];
+        board.PitList[pitAmount - 1] = new HomePit(1);
+        board.PitList[pitAmount * 2 - 1] = new HomePit(2);
 
-            for (int i = 0; i < pitAmount; i++)
-            {
-                board.PitList[i] = new NormalPit(startingPebbles, 1);
-                board.PitList[i + pitAmount] = new NormalPit(startingPebbles, 2);
-            }
-
-            return board;
-        }
-    }
-    public class PlayingBoard
-    {
-        public bool HasHomePits;
-        public Pit[] PitList;
-        public int RegularPitAmount;
-        public int PitIndex;
-        public int P1Collection = 0;
-        public int P2Collection = 0;
-
-        public Pit GetFirstPit(int pitIndex) 
-        {
-            PitIndex = pitIndex;
-            return PitList[PitIndex]; 
-        }
-        public Pit GetNextPit()
-        {
-            PitIndex++;
-            PitIndex %= PitList.Length;
-            return PitList[PitIndex];
-        }
-        //Default case is for a board without homePits, override for boards with.
-        public virtual Pit GetOppositePit()
-        {
-            return PitList[PitList.Length - 1 - PitIndex];
-        }
-        
+        return board;
     }
 
-    public class MankalaBoard : PlayingBoard
+    public static PlayingBoard CreateWariBoard(int pitAmount, int startingPebbles)
     {
-        public MankalaBoard()
+        var board = new WariBoard();
+        board.RegularPitAmount = pitAmount;
+        board.PitList = new Pit[pitAmount * 2];
+
+        for (var i = 0; i < pitAmount; i++)
         {
-            HasHomePits = true;
-        }
-        public override Pit GetOppositePit()
-        {
-            return PitList[PitList.Length - 2 - PitIndex];
+            board.PitList[i] = new NormalPit(startingPebbles, 1);
+            board.PitList[i + pitAmount] = new NormalPit(startingPebbles, 2);
         }
 
+        return board;
+    }
+}
+
+public class PlayingBoard
+{
+    public bool HasHomePits;
+    public int P1Collection = 0;
+    public int P2Collection = 0;
+    public int PitIndex;
+    public Pit[] PitList;
+    public int RegularPitAmount;
+
+    public Pit GetFirstPit(int pitIndex)
+    {
+        PitIndex = pitIndex;
+        return PitList[PitIndex];
     }
 
-    public class WariBoard : PlayingBoard
+    public Pit GetNextPit()
     {
-        
-        public WariBoard()
-        {
-            HasHomePits = false;
-            
-        }
+        PitIndex++;
+        PitIndex %= PitList.Length;
+        return PitList[PitIndex];
     }
 
-    abstract public class Pit
+    //Default case is for a board without homePits, override for boards with.
+    public virtual Pit GetOppositePit()
     {
-        public int PebbleAmount = 0;
-        public int Owner;
+        return PitList[PitList.Length - 1 - PitIndex];
+    }
+}
 
-        abstract public int RemovePebbles();
-        abstract public int AddPebble(int player, int amount);
+public class MankalaBoard : PlayingBoard
+{
+    public MankalaBoard()
+    {
+        HasHomePits = true;
     }
 
-    class HomePit : Pit
+    public override Pit GetOppositePit()
     {
-        public HomePit(int owner)
-        {
-            Owner = owner;
-        }
+        return PitList[PitList.Length - 2 - PitIndex];
+    }
+}
 
-        public override int RemovePebbles()
-        {
-            //This should never be called, i think?
-            int previousPebbles = PebbleAmount; 
-            this.PebbleAmount = 0;
-            return previousPebbles;
-        }
-        public override int AddPebble(int player, int amount)
-        {
-            if(player == 0)
-            {   //Use this if a large amount of pebbles has to be added, due to game-specific rules
-                this.PebbleAmount += amount;
-                return 0;
-            }
-            else if(Owner  == player)
-            {
-                this.PebbleAmount++;
-                return amount-1;
-            }
-            else
-            {
-                return amount;
-            }
-            
-        }
+public class WariBoard : PlayingBoard
+{
+    public WariBoard()
+    {
+        HasHomePits = false;
+    }
+}
 
+public abstract class Pit
+{
+    public int Owner;
+    public int PebbleAmount;
+
+    public abstract int RemovePebbles();
+    public abstract int AddPebble(int player, int amount);
+}
+
+internal class HomePit : Pit
+{
+    public HomePit(int owner)
+    {
+        Owner = owner;
     }
 
-    class NormalPit : Pit
+    public override int RemovePebbles()
     {
-        public NormalPit(int initalPebbles, int player)
-        {
-            Owner = player;
-            PebbleAmount = initalPebbles;
-        }
-        public override int RemovePebbles()
-        {
-            int previousPebbles = PebbleAmount;
-            this.PebbleAmount = 0;
-            return previousPebbles;
-        }
-
-        public override int AddPebble(int player, int amount)
-        {
-            this.PebbleAmount++;
-            return amount-1;
-        }
-
+        //This should never be called, i think?
+        var previousPebbles = PebbleAmount;
+        PebbleAmount = 0;
+        return previousPebbles;
     }
 
+    public override int AddPebble(int player, int amount)
+    {
+        if (player == 0)
+        {
+            //Use this if a large amount of pebbles has to be added, due to game-specific rules
+            PebbleAmount += amount;
+            return 0;
+        }
 
+        if (Owner == player)
+        {
+            PebbleAmount++;
+            return amount - 1;
+        }
+
+        return amount;
+    }
+}
+
+internal class NormalPit : Pit
+{
+    public NormalPit(int initalPebbles, int player)
+    {
+        Owner = player;
+        PebbleAmount = initalPebbles;
+    }
+
+    public override int RemovePebbles()
+    {
+        var previousPebbles = PebbleAmount;
+        PebbleAmount = 0;
+        return previousPebbles;
+    }
+
+    public override int AddPebble(int player, int amount)
+    {
+        PebbleAmount++;
+        return amount - 1;
+    }
 }

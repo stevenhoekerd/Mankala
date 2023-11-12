@@ -1,9 +1,4 @@
 ﻿using MankalaProject;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mankala
 {
@@ -48,9 +43,9 @@ namespace Mankala
             }
             else
             {
-                Console.WriteLine("Player 2 Score: " + board.P2Collection );
+                Console.WriteLine("Player 2 Score: " + board.P2Collection);
             }
-            
+
             Console.WriteLine(firstline);
             Console.WriteLine(secondline);
             Console.WriteLine(thirdline);
@@ -65,8 +60,8 @@ namespace Mankala
         {
             Console.WriteLine("choose your move, player" + player);
             int startingPit;
-                
-            if(int.TryParse(Console.ReadLine(),out startingPit))
+
+            if (int.TryParse(Console.ReadLine(), out startingPit))
             {
                 return startingPit;
             }
@@ -120,7 +115,7 @@ namespace Mankala
                     Console.WriteLine("Invalid choice! type a number!");
                     continue;
                 }
-                else if(setting < 0 || setting >= gameModes.Length)
+                else if (setting < 0 || setting >= gameModes.Length)
                 {
                     Console.WriteLine("Invalid choice! choose a number between 0 and " + gameModes.Length);
                     succes = false;
@@ -133,18 +128,18 @@ namespace Mankala
             while (!succes)
             {
                 Console.WriteLine("Would you like to play with default settings, or with custom settings? type 0 for standard, or 1 for custom");
-                succes = int.TryParse(Console.ReadLine(),out setting);
+                succes = int.TryParse(Console.ReadLine(), out setting);
                 if (setting < 0 || setting >= 2)
                 {
                     Console.WriteLine("Invalid choice! type 0 or 1!");
-                    succes = false; 
+                    succes = false;
                     continue;
                 }
             }
-            if(setting == 0)
+            if (setting == 0)
             {//-1 Indicates that the factory should use default values for a gamemode
-                settings[1] =-1;
-                settings[2] =-1;
+                settings[1] = -1;
+                settings[2] = -1;
                 return settings;
             }
             //Choose the number of pits
